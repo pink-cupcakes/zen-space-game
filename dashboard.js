@@ -46,7 +46,9 @@
     const g=geometry(),r=art.getBoundingClientRect();
     return `translate(${r.left}px,${r.top}px) scale(${g.scale})`;
   }
-  function focusCamera(){const nav=currentModule==='navigation',[x,y]=window.DriftCabin.point(nav?963:735,nav?604:605),scale=Math.min(innerWidth/(nav?248:150),(innerHeight-140)/(nav?135:101));return `translate(${innerWidth/2-x*scale}px,${innerHeight*.52-y*scale}px) scale(${scale})`;}
+  function focusFrame(){const nav=currentModule==='navigation',[x,y]=window.DriftCabin.point(nav?963:735,nav?604:605),scale=Math.min(innerWidth/(nav?248:150),(innerHeight-140)/(nav?135:101));return {left:x-innerWidth/2/scale,top:y-innerHeight*.52/scale,width:innerWidth/scale,height:innerHeight/scale,scale};}
+  function focusCamera(){const v=focusFrame();return `translate(${-v.left*v.scale}px,${-v.top*v.scale}px) scale(${v.scale})`;}
+  function sharpenConsole(){surface.resolution(true,focusFrame());surface.render();}
   function openConsole(trigger){
     if(dialog.open)return;returnFocus=trigger;currentModule=trigger.dataset.console;
     dialog.dataset.module=currentModule;switches.inert=currentModule!=='navigation';
@@ -55,14 +57,16 @@
     const from=cabinCamera(),to=focusCamera();surface.resolution(true);surface.render();
     dialog.prepend(world);world.inert=false;world.style.transform=to;dialog.showModal();
     animation=world.animate([{transform:from},{transform:to}],{duration:reducedMotion.matches?0:850,easing:'cubic-bezier(.22,.68,.2,1)'});
+    const opening=animation;
+    opening.finished.then(()=>{if(dialog.open&&!closing&&animation===opening)sharpenConsole();},()=>{});
     q('.console-close').focus({preventScroll:true});
   }
   async function closeConsole(){
-    if(closing)return;closing=true;const from=getComputedStyle(world).transform;animation?.cancel();const to=cabinCamera();world.style.transform=to;
+    if(closing)return;closing=true;const from=getComputedStyle(world).transform;animation?.cancel();surface.resolution(true);surface.render();const to=cabinCamera();world.style.transform=to;
     animation=world.animate([{transform:from},{transform:to}],{duration:reducedMotion.matches?0:550,easing:'cubic-bezier(.3,0,.3,1)'});
     await animation.finished;returnWorld();dialog.close();closing=false;returnFocus?.focus({preventScroll:true});
   }
-  returnWorld();new ResizeObserver(()=>{placeHotspots();if(!dialog.open)overviewCamera();else if(!closing){animation?.cancel();world.style.transform=focusCamera();}}).observe(art);placeHotspots();
+  returnWorld();new ResizeObserver(()=>{placeHotspots();if(!dialog.open)overviewCamera();else if(!closing){animation?.cancel();world.style.transform=focusCamera();sharpenConsole();}}).observe(art);placeHotspots();
   cabin.querySelectorAll('[data-console]').forEach(b=>b.addEventListener('click',()=>openConsole(b)));
   q('.console-close').addEventListener('click',closeConsole);dialog.addEventListener('cancel',e=>{e.preventDefault();closeConsole();});
   function addLog(label,detail){const elapsed=Math.floor((performance.now()-startTime)/1000);state.log.unshift({stamp:`${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`,label,detail});state.log.length=Math.min(state.log.length,4);}

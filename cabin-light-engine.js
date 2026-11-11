@@ -21,7 +21,8 @@ export async function createCabinLighting(screens,surfaces){
   }));
   const screenTextures=Object.fromEntries(Object.entries(screens).map(([name,canvas])=>{
     const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
-    texture.generateMipmaps=false;texture.minFilter=THREE.LinearFilter;return [name,texture];
+    texture.generateMipmaps=false;texture.minFilter=THREE.LinearFilter;
+    texture.magFilter=THREE.NearestFilter;return [name,texture];
   }));
   const strips={value:new THREE.Vector2()};
   const material=new THREE.MeshBasicMaterial({map:states[0]});
@@ -58,9 +59,22 @@ export async function createCabinLighting(screens,surfaces){
   function requestRender(){if(!frame&&!disposed)frame=requestAnimationFrame(render);}
   const observer=new MutationObserver(requestRender);
   fixtures.forEach(f=>observer.observe(f.button,{attributes:true,attributeFilter:['aria-pressed']}));
-  function resolution(closeup){
-    const scale=Math.min(closeup?2:1.25,renderer.capabilities.maxTextureSize/WIDTH);
-    renderer.setSize(Math.round(WIDTH*scale),Math.round(HEIGHT*scale),false);requestRender();
+  function resolution(closeup,view){
+    const canvas=renderer.domElement;
+    if(closeup&&view){
+      // Rasterize only the visible crop, directly at display-pixel resolution.
+      // This avoids enlarging a low-resolution copy of the entire panorama.
+      camera.setViewOffset(WIDTH,HEIGHT,view.left,view.top,view.width,view.height);
+      const size=instrumentRasterSize(view,devicePixelRatio||1,renderer.capabilities.maxTextureSize);
+      renderer.setSize(size.width,size.height,false);
+      Object.assign(canvas.style,{position:'absolute',left:`${view.left}px`,top:`${view.top}px`,width:`${view.width}px`,height:`${view.height}px`});
+    }else{
+      camera.clearViewOffset();
+      const scale=Math.min(closeup?2:1.25,renderer.capabilities.maxTextureSize/WIDTH);
+      renderer.setSize(Math.round(WIDTH*scale),Math.round(HEIGHT*scale),false);
+      Object.assign(canvas.style,{position:'',left:'',top:'',width:'100%',height:'100%'});
+    }
+    requestRender();
   }
   function updateInstruments(){for(const texture of Object.values(screenTextures))texture.needsUpdate=true;requestRender();}
   renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();cancelAnimationFrame(frame);frame=0;});
@@ -70,6 +84,12 @@ export async function createCabinLighting(screens,surfaces){
     disposed=true;cancelAnimationFrame(frame);observer.disconnect();geometry.dispose();material.dispose();
     states.forEach(t=>t.dispose());Object.values(screenTextures).forEach(t=>t.dispose());renderer.dispose();renderer.domElement.remove();
   }};
+}
+
+export function instrumentRasterSize(view,pixelRatio,maximum){
+  const width=view.width*view.scale,height=view.height*view.scale;
+  const density=Math.min(pixelRatio,maximum/width,maximum/height);
+  return {width:Math.ceil(width*density),height:Math.ceil(height*density)};
 }
 
 // Panorama pixels -> UVs on each physical instrument glass (projective mapping).
