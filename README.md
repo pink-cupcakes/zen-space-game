@@ -22,3 +22,9 @@ The navigation screen shows your position in the Hearth system and the route to 
 Return with **Back to cabin** or **Escape**; your look-around position is preserved. Reduced motion skips the camera animation. Screen rendering lives in `instrument-screens.js`, interaction and camera behavior in `dashboard.js`, and placement in `dashboard.css`. Lamp behavior is separate in `lighting.js` and `lighting.css`.
 
 `copy-bank.json` reserves “A little closer to somewhere.” for a future journey moment. The built-in image-generation edit and its exact prompt are saved in `assets/cockpit-instruments-v2.png` and `assets/cockpit-instruments-v2.prompt.txt`; it preserves the cabin and provides recessed glass for the live displays.
+
+## GitHub Pages
+
+The static game can be published with `.github/workflows/pages.yml`. Enable **Settings → Pages → Source → GitHub Actions**, then push to `main` or manually run **Publish Drift to GitHub Pages**. GitHub Free requires a public repository; keeping the source repository private requires an eligible paid plan. The published game itself is public.
+
+Run `python3 scripts/build-pages.py` to inspect the deployment bundle in `_site/`. It includes tracked runtime files, images, fonts, music and licenses; it excludes Git metadata, generation prompts and project notes. Commit new runtime assets before publishing. The expected project URL is `https://pink-cupcakes.github.io/zen-space-game/`.
