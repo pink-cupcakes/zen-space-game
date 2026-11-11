@@ -7,3 +7,16 @@
 button:focus-visible,select:focus-visible{outline:2px solid #d7e7c7;outline-offset:4px}
 @media(max-width:1050px){.control-label{display:none}.controls{justify-content:center}.actions{width:100%;justify-content:space-between}}
 @media(max-width:540px){.actions{display:grid;grid-template-columns:1fr 1fr;gap:18px}.ship-control{padding:4px 12px;border:0}.ship-control select{max-width:100%}.readout{bottom:190px}.intro{top:23%}.intro h1{font-size:40px}}
+
+.music-player{position:absolute;right:5%;bottom:128px;width:350px;padding:18px 20px 14px;border:1px solid rgba(199,221,211,.25);border-radius:8px;background:rgba(9,19,24,.86);backdrop-filter:blur(14px);transition:opacity .6s}
+.radio-heading,.radio-footer{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.radio-heading label{font-size:9px;letter-spacing:.17em;color:#bed6cb}.radio-heading>span{font-size:8px;letter-spacing:.08em;color:#92a59d}
+#music-track{display:block;width:100%;margin:12px 0 10px;font:500 15px 'DM Sans',sans-serif;background:#15232a;color:#e5efeb;border:1px solid #53635c;border-radius:4px;padding:8px}
+#music{display:block;width:100%;height:40px;margin:0 0 10px}.radio-footer button{background:none;color:#c2d6cd;border:0;padding:6px 0;font-size:8px;letter-spacing:.1em;cursor:pointer}.radio-footer button:hover{color:white}
+#music-status{font-size:10px;color:#a5b4b1;text-align:center}.music-credit{display:block;margin-top:9px;color:#91a39b;font-size:9px;text-decoration:none}.music-credit:hover{text-decoration:underline}
+.minimal .music-player{opacity:0;visibility:hidden;pointer-events:none}
+@media(max-width:1100px){.music-player{width:310px}.readout{top:30%}.intro{top:24%;max-width:52%}.intro h1{font-size:clamp(32px,4.7vw,64px)}}
+@media(max-width:700px){.scene{min-height:max(100svh,850px)}.intro{top:140px;max-width:86%}.music-player{left:5%;right:5%;bottom:175px;width:auto}.readout{display:none}.intro h1{font-size:40px}.controls{min-height:145px}}
+@media(max-height:650px) and (min-width:701px){.scene{min-height:650px}}
+
+@media(min-width:701px){.readout{top:auto;bottom:355px}}
