@@ -4,3 +4,20 @@ function animate(t){let dt=Math.min((t-last)/1000||0,.05);last=t;ctx.clearRect(0
 const scene=document.querySelector('.scene');document.querySelector('#begin').onclick=()=>scene.classList.add('settled');document.querySelector('#hide').onclick=()=>scene.classList.add('minimal');document.querySelector('#restore').onclick=()=>scene.classList.remove('minimal');
 const speeds=[['Slow drift',.35],['Gentle cruise',.8],['Stillness',0]];let speedIndex=0;document.querySelector('#speed').onclick=e=>{speedIndex=(speedIndex+1)%speeds.length;pace=speeds[speedIndex][1];e.currentTarget.querySelector('b').textContent=speeds[speedIndex][0]};
 let audio,osc,gain,playing=false;document.querySelector('#sound').onclick=async e=>{if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();osc=audio.createOscillator();gain=audio.createGain();osc.type='sine';osc.frequency.value=55;gain.gain.value=0;osc.connect(gain).connect(audio.destination);osc.start()}await audio.resume();playing=!playing;gain.gain.setTargetAtTime(playing?.035:0,audio.currentTime,.5);e.currentTarget.querySelector('b').textContent=playing?'On':'Off'};
+
+// Stable configuration IDs keep saved preferences independent of asset filenames.
+const ships = {
+  'night-watch': { image: 'assets/cockpit-original-edited.png' },
+  'amber-voyager': { image: 'assets/cockpit.png' }
+};
+const shipSelector = document.querySelector('#ship');
+function selectShip(id) {
+  if (!Object.hasOwn(ships, id)) id = 'night-watch';
+  document.querySelector('.art').style.backgroundImage = `url("${ships[id].image}")`;
+  shipSelector.value = id;
+  try { localStorage.setItem('drift-ship', id); } catch { /* Storage may be unavailable. */ }
+}
+let savedShip = 'night-watch';
+try { savedShip = localStorage.getItem('drift-ship') || savedShip; } catch {}
+selectShip(savedShip);
+shipSelector.addEventListener('change', () => selectShip(shipSelector.value));
