@@ -16,6 +16,7 @@ export default function App() {
     status: "",
     summary: "",
   });
+  const [lightsOpen, setLightsOpen] = useState(false);
   const [lights, setLights] = useState([false, false, true, true]);
   const [hum, setHum] = useState(false);
   const [humError, setHumError] = useState(false);
@@ -108,6 +109,41 @@ export default function App() {
           <i></i> ALL SYSTEMS CALM
         </div>
       </header>
+      <div className="mobile-lights">
+        <button
+          className="mobile-lights-toggle"
+          type="button"
+          aria-expanded={lightsOpen}
+          aria-controls="mobile-light-panel"
+          onClick={() => setLightsOpen(!lightsOpen)}
+        >
+          ✳ &nbsp; LIGHTS
+        </button>
+        <div
+          className="mobile-light-panel"
+          id="mobile-light-panel"
+          hidden={!lightsOpen}
+          role="group"
+          aria-label="Cabin lights"
+        >
+          {[
+            ["Ceiling", "cord"],
+            ["Desk", "kerosene"],
+            ["Overhead strip"],
+            ["Shelf strip"],
+          ].map(([label, sound], index) => (
+            <button
+              key={label}
+              type="button"
+              aria-pressed={lights[index]}
+              onClick={() => toggleLight(index, sound)}
+            >
+              <span>{label}</span>
+              <span>{lights[index] ? "ON" : "OFF"}</span>
+            </button>
+          ))}
+        </div>
+      </div>
       <section className="intro">
         <p className="eyebrow">SOMEWHERE BETWEEN HERE AND THERE</p>
         <h1>Take the long way.</h1>

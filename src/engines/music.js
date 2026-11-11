@@ -156,7 +156,6 @@ export function createRadio(onChange) {
     deck.audio.load();
     deck.source?.disconnect();
     deck.gain?.disconnect();
-    URL.revokeObjectURL(deck.url);
     deck.audio.remove();
   }
   function finishFade() {
@@ -218,15 +217,13 @@ export function createRadio(onChange) {
     setStatus("Loading…");
     let candidate;
     try {
-      const blob = await fetchTrack(nextIndex);
-      if (token !== operation) return;
       const audio = new Audio();
       audio.preload = "auto";
       audio.defaultPlaybackRate = RATE;
       audio.playbackRate = RATE;
       audio.preservesPitch = true;
-      candidate = { audio, url: URL.createObjectURL(blob) };
-      audio.src = candidate.url;
+      candidate = { audio };
+      audio.src = `assets/music/${trackIds[nextIndex]}.mp3`;
       connect(candidate);
       if (candidate.gain) candidate.gain.gain.value = 0;
       // If paused during loading, adopt the new track silently instead.
@@ -253,14 +250,7 @@ export function createRadio(onChange) {
         if (current.gain) current.gain.gain.value = 1;
         setStatus(wanted ? "On air" : "Ready when you are");
       }
-      audio.addEventListener("timeupdate", tick);
-      audio.addEventListener("loadedmetadata", update);
-      audio.addEventListener("ended", () => {
-        if (current?.audio === audio) tick();
-      });
-      audio.addEventListener("error", () => {
-        if (current?.audio === audio) setStatus("Track unavailable — try next");
-      });
+      attachEvents(audio);
       failed.delete(nextIndex);
       save();
       preload();
@@ -275,6 +265,19 @@ export function createRadio(onChange) {
     } finally {
       if (token === operation) switching = false;
     }
+  }
+  function attachEvents(audio) {
+    audio.addEventListener("timeupdate", tick);
+    audio.addEventListener("loadedmetadata", update);
+    audio.addEventListener("ended", () => {
+      if (current?.audio === audio) tick();
+    });
+    audio.addEventListener("error", () => {
+      if (current?.audio === audio) {
+        wanted = false;
+        setStatus("Track unavailable — try next");
+      }
+    });
   }
   function tick() {
     if (outgoing && context.currentTime >= transitionEnd) finishFade();
@@ -298,20 +301,24 @@ export function createRadio(onChange) {
     }
     try {
       audioGraph();
-      await context.resume();
-      if (!wanted || signal.aborted) return;
-      await Promise.all(
+      // Both calls must occur in the original tap handler. Awaiting resume first
+      // can consume the transient activation required by mobile browsers.
+      const resume = context.resume();
+      const playback = Promise.all(
         [current, outgoing].filter(Boolean).map((deck) => deck.audio.play()),
       );
+      setStatus("Loading…");
+      await Promise.all([resume, playback]);
       if (!wanted || signal.aborted) {
         for (const deck of [current, outgoing].filter(Boolean))
           deck.audio.pause();
         return;
       }
-      if (!current && !switching) choose(index);
-      else setStatus(outgoing ? "Blending…" : "On air");
+      setStatus(outgoing ? "Blending…" : "On air");
     } catch {
       wanted = false;
+      for (const deck of [current, outgoing].filter(Boolean))
+        deck.audio.pause();
       setStatus("Press play to listen");
     }
     update();
@@ -349,8 +356,19 @@ export function createRadio(onChange) {
   // A timer supplements media events; audio gain curves run on the audio thread.
   const timer = setInterval(tick, 250);
   document.addEventListener("visibilitychange", tick, { signal });
+  // Prepare the first media element immediately, so Play can start it during
+  // the user's tap even while its audio data is still loading.
+  const audio = new Audio();
+  audio.preload = "auto";
+  audio.defaultPlaybackRate = RATE;
+  audio.playbackRate = RATE;
+  audio.preservesPitch = true;
+  audio.src = `assets/music/${trackIds[index]}.mp3`;
+  current = { audio };
+  attachEvents(audio);
+  recordTrack(index, "new");
+  preload();
   update();
-  choose(index, 0);
   return {
     togglePlayback,
     selectTrack,

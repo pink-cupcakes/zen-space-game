@@ -1,4 +1,7 @@
 /* On phones the cabin fills the visible viewport; controls sit above safe areas. */
+.mobile-lights {
+  display: none;
+}
 .touch-hint,
 .mobile-courses,
 .console-tabs,
@@ -15,6 +18,64 @@
   .scene .art,
   .scene .light-layer {
     touch-action: none;
+  }
+  .mobile-lights {
+    display: block;
+    position: absolute;
+    z-index: 8;
+    top: max(10px, env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+  }
+  .minimal .mobile-lights {
+    display: none;
+  }
+  .mobile-lights-toggle {
+    display: block;
+    margin-left: auto;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid rgba(199, 221, 211, 0.35);
+    border-radius: 4px;
+    background: rgba(9, 19, 24, 0.88);
+    color: #e5efeb;
+    font:
+      700 10px "DM Sans",
+      sans-serif;
+    letter-spacing: 0.12em;
+  }
+  .mobile-light-panel {
+    width: min(240px, calc(100vw - 24px));
+    margin-top: 6px;
+    padding: 8px;
+    border: 1px solid rgba(199, 221, 211, 0.25);
+    border-radius: 6px;
+    background: #0c1b20f5;
+  }
+  .mobile-light-panel button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: #dceae3;
+    font:
+      12px "DM Sans",
+      sans-serif;
+  }
+  .mobile-light-panel button + button {
+    border-top: 1px solid #ffffff16;
+  }
+  .mobile-light-panel button span:last-child {
+    color: #98aaa2;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+  .mobile-light-panel button[aria-pressed="true"] span:last-child {
+    color: #f0d591;
   }
   .top {
     padding: max(16px, env(safe-area-inset-top)) 20px 0;
