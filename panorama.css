@@ -2,6 +2,6 @@
 .scene{overflow:clip}
 .scene .art{background-image:url('assets/cockpit-wide.png');background-size:100% 100%;background-position:center;inset:auto;transform:translate3d(var(--look-x,0px),var(--look-y,0px),0)}
 .scene .light-layer{inset:auto;transform:translate3d(var(--look-x,0px),var(--look-y,0px),0)}
-#stars{transform:translate3d(var(--look-x,0px),var(--look-y,0px),0)}
+#stars{transform:none}
 .console-world{width:2149px;height:732px}
 .lamp-spill{transform-origin:0 0}

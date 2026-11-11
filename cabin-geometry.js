@@ -7,7 +7,7 @@ window.DriftCabin = {
     const [a,b,c,d,e,f,g,h]=this.matrix, z=g*x+h*y+1;
     return [(a*x+b*y+c)/z,(d*x+e*y+f)/z];
   },
-  scale(w,h) { return Math.max(w/1350,h/this.height)*1.06; },
+  scale(w,h) { return Math.max(w/1100,h/this.height)*1.06; },
   overlayTransform(scale) {
     const [a,b,c,d,e,f,g,h]=this.matrix;
     return `matrix3d(${a*scale},${d*scale},0,${g},${b*scale},${e*scale},0,${h},0,0,1,0,${c*scale},${f*scale},0,1)`;
