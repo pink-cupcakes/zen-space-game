@@ -1,12 +1,11 @@
 // Independent lamp states. Instrument displays are owned by dashboard.js.
 (() => {
-  const scene = document.querySelector('.scene');
   const layer = document.querySelector('.light-layer');
   const fixtures = [
     {selector:'.ceiling-light',box:[138,240,145,100],mask:'left'},
     {selector:'.desk-light',box:[1408,630,110,165],mask:'right'},
-    {name:'Overhead strip light',className:'overhead-strip',box:[790,72,118,38]},
-    {name:'Shelf strip light',className:'shelf-strip',box:[1615,166,110,36]}
+    {name:'Overhead strip light',className:'overhead-strip',box:[790,72,118,38],offPatch:'overhead'},
+    {name:'Shelf strip light',className:'shelf-strip',box:[1615,166,110,36],offPatch:'shelf'}
   ];
   for(const fixture of fixtures){
     let button = fixture.selector ? layer.querySelector(fixture.selector) : layer.querySelector('.'+fixture.className);
@@ -21,9 +20,16 @@
       const spill=document.createElement('div');spill.className=`lamp-spill ${fixture.mask}-lamp-spill`;
       spill.setAttribute('aria-hidden','true');layer.prepend(spill);fixture.spill=spill;
     }
+    if(fixture.offPatch){
+      button.classList.add('painted-lamp');
+      const patch=document.createElement('div');
+      patch.className=`strip-off-patch ${fixture.offPatch}-off-patch`;
+      patch.setAttribute('aria-hidden','true');layer.prepend(patch);fixture.patch=patch;
+    }
     function sync(){
       const on=button.getAttribute('aria-pressed')==='true';
       fixture.spill?.classList.toggle('is-on',on);
+      fixture.patch?.classList.toggle('is-off',!on);
       button.title=`Turn ${on?'off':'on'} ${button.getAttribute('aria-label').toLowerCase()}`;
     }
     button.addEventListener('click',()=>{button.setAttribute('aria-pressed',String(button.getAttribute('aria-pressed')!=='true'));sync()});sync();
