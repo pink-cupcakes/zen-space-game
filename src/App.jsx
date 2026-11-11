@@ -141,12 +141,14 @@ export default function App() {
         }
       />
       <div className="look-hint" aria-hidden="true">
-        DRAG TO LOOK AROUND
+        <span className="desktop-hint">DRAG TO LOOK AROUND</span>
+        <span className="touch-hint">SWIPE TO LOOK AROUND</span>
       </div>
       <ConsoleDialog
         instrument={instrument}
         onClose={closeConsole}
         onCourse={setCourse}
+        onOpen={openConsole}
       />
       <button
         className="restore"

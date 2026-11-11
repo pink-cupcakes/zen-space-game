@@ -46,7 +46,7 @@ export function InstrumentScene({
   );
 }
 
-export function ConsoleDialog({ instrument, onClose, onCourse }) {
+export function ConsoleDialog({ instrument, onClose, onCourse, onOpen }) {
   function handleKeyDown(event) {
     if (
       instrument.module === "navigation" &&
@@ -85,15 +85,59 @@ export function ConsoleDialog({ instrument, onClose, onCourse }) {
           ↙ BACK TO CABIN <kbd>ESC</kbd>
         </button>
       </header>
+      <div className="console-tabs" role="group" aria-label="Instrument view">
+        <button
+          type="button"
+          aria-pressed={instrument.module === "navigation"}
+          onClick={(event) => onOpen("navigation", event.currentTarget)}
+        >
+          Navigation
+        </button>
+        <button
+          type="button"
+          aria-pressed={instrument.module === "engineering"}
+          onClick={(event) => onOpen("engineering", event.currentTarget)}
+        >
+          Ship systems
+        </button>
+      </div>
       <div className="console-guide">
         <span className="course-legend">
           01 Lantern Station &nbsp; · &nbsp; 02 Moss moon &nbsp; · &nbsp; 03
           Cinder Belt
         </span>
+        {instrument.module === "navigation" && (
+          <div
+            className="mobile-courses"
+            role="group"
+            aria-label="Set destination"
+          >
+            {destinations.map((destination) => (
+              <button
+                key={destination.id}
+                type="button"
+                aria-pressed={instrument.destination === destination.id}
+                onClick={() => onCourse(destination.id)}
+              >
+                <span>{destination.code}</span>
+                {destination.name}
+              </button>
+            ))}
+          </div>
+        )}
         <small id="console-instruction">
-          {instrument.module === "navigation"
-            ? "Use the amber buttons, or press 1, 2, or 3"
-            : "Engine · energy · hull / all systems calm"}
+          {instrument.module === "navigation" ? (
+            <>
+              <span className="console-desktop-instruction">
+                Use the amber buttons, or press 1, 2, or 3
+              </span>
+              <span className="console-touch-instruction">
+                Choose a destination
+              </span>
+            </>
+          ) : (
+            "Engine · energy · hull / all systems calm"
+          )}
         </small>
       </div>
       <p className="instrument-accessible" id="instrument-summary">

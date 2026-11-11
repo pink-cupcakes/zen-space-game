@@ -16,7 +16,12 @@ const initialState = {
 export function Radio() {
   const player = useRef(null);
   const [radio, setRadio] = useState(initialState);
-  const [shelved, setShelved] = useState(false);
+  const [shelved, setShelved] = useState(
+    () =>
+      window.matchMedia(
+        "(max-width: 700px), (max-width: 950px) and (max-height: 500px)",
+      ).matches,
+  );
 
   useEffect(() => {
     const instance = createRadio(setRadio);

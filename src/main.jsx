@@ -6,6 +6,7 @@ import "../dashboard.css";
 import "../dashboard-retro.css";
 import "../lighting.css";
 import "../panorama.css";
+import "../mobile.css";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>

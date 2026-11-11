@@ -1,0 +1,264 @@
+/* On phones the cabin fills the visible viewport; controls sit above safe areas. */
+.touch-hint,
+.mobile-courses,
+.console-tabs,
+.console-touch-instruction {
+  display: none;
+}
+
+@media (max-width: 700px), (max-width: 950px) and (max-height: 500px) {
+  .scene {
+    height: 100svh;
+    min-height: 0;
+    touch-action: pan-y;
+  }
+  .scene .art,
+  .scene .light-layer {
+    touch-action: none;
+  }
+  .top {
+    padding: max(16px, env(safe-area-inset-top)) 20px 0;
+  }
+  .brand small,
+  .status {
+    display: none;
+  }
+  .intro {
+    top: max(90px, 15%);
+    left: 7%;
+    right: 7%;
+    max-width: none;
+  }
+  .intro h1 {
+    margin: 14px 0;
+    font-size: clamp(28px, 8vw, 40px);
+  }
+  .intro p:not(.eyebrow) {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .begin {
+    min-height: 48px;
+    margin-top: 14px;
+  }
+  .readout {
+    display: none;
+  }
+  .controls {
+    display: block;
+    min-height: 0;
+    padding: 8px max(12px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    background: rgba(5, 13, 19, 0.88);
+  }
+  .control-label {
+    display: none;
+  }
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 8px;
+  }
+  .actions button {
+    min-width: 0;
+    min-height: 50px;
+    padding: 6px 8px;
+    border: 0;
+    gap: 10px;
+  }
+  .actions button > span {
+    width: 22px;
+    flex: 0 0 22px;
+    text-align: center;
+    font-size: 20px;
+  }
+  .actions small {
+    margin-bottom: 4px;
+  }
+  .actions b {
+    font-size: 11px;
+  }
+  .music-player,
+  .music-player.shelved {
+    left: max(12px, env(safe-area-inset-left));
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(124px + env(safe-area-inset-bottom));
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    max-height: calc(100svh - 170px - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+  .music-player.shelved {
+    padding: 8px 14px;
+  }
+  .shelved .radio-heading > div {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .shelved #music-status {
+    display: inline;
+    margin: 0;
+  }
+  .radio-toggle,
+  .transport button,
+  .transport .play-button,
+  .volume-row button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  #music-track {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .seek-row input,
+  .volume-row input {
+    min-height: 32px;
+  }
+  .look-hint {
+    bottom: calc(195px + env(safe-area-inset-bottom));
+    font-size: 9px;
+    white-space: nowrap;
+  }
+  .desktop-hint {
+    display: none;
+  }
+  .touch-hint {
+    display: inline;
+  }
+  .minimal .look-hint {
+    bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+  .restore {
+    bottom: max(20px, env(safe-area-inset-bottom));
+    min-height: 44px;
+  }
+  .cabin-light {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .instrument-hotspot {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .scene:has(.music-player:not(.shelved)) .look-hint {
+    opacity: 0;
+  }
+  .console-desktop-instruction {
+    display: none;
+  }
+  .console-touch-instruction {
+    display: inline;
+  }
+  .console-tabs {
+    position: absolute;
+    z-index: 2;
+    top: calc(max(16px, env(safe-area-inset-top)) + 58px);
+    left: 4%;
+    display: flex;
+    gap: 6px;
+  }
+  .console-tabs button {
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid #8d8c695c;
+    border-radius: 4px;
+    background: #0b171bdd;
+    color: #d9dfcc;
+    font:
+      10px "DM Sans",
+      sans-serif;
+  }
+  .console-tabs button[aria-pressed="true"] {
+    border-color: #e7c681;
+    color: #fff5d6;
+  }
+  .console-view-controls {
+    top: max(16px, env(safe-area-inset-top));
+    z-index: 2;
+  }
+  .console-close {
+    min-height: 44px;
+  }
+  .console-guide {
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 2;
+    width: calc(100% - 24px);
+    padding: 10px;
+    white-space: normal;
+  }
+  .console-guide .course-legend {
+    display: none;
+  }
+  .mobile-courses {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .mobile-courses button {
+    min-width: 0;
+    min-height: 48px;
+    padding: 6px 3px;
+    border: 1px solid #8d8c695c;
+    border-radius: 4px;
+    background: #17231e;
+    color: #d9dfcc;
+    font:
+      10px/1.25 "DM Sans",
+      sans-serif;
+    cursor: pointer;
+  }
+  .mobile-courses button span {
+    display: block;
+    margin-bottom: 3px;
+    color: #bdab7a;
+    font-size: 9px;
+  }
+  .mobile-courses button[aria-pressed="true"] {
+    border-color: #e7c681;
+    background: #4a4025;
+    color: #fff5d6;
+  }
+  .console-guide small {
+    margin-top: 7px;
+  }
+}
+
+@media (max-width: 950px) and (max-height: 500px) {
+  .intro {
+    top: 25%;
+    left: 5%;
+    max-width: 50%;
+  }
+  .intro h1 {
+    font-size: clamp(26px, 4vw, 34px);
+    margin: 8px 0;
+  }
+  .intro p:not(.eyebrow) {
+    margin: 6px 0;
+    font-size: 12px;
+  }
+  .begin {
+    margin-top: 6px;
+    padding: 10px 14px;
+  }
+  .actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .music-player,
+  .music-player.shelved {
+    left: auto;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    width: min(330px, 45vw);
+    max-height: calc(100svh - 95px - env(safe-area-inset-bottom));
+  }
+  .look-hint {
+    display: none;
+  }
+  .console-guide {
+    width: min(440px, calc(100% - 24px));
+  }
+}

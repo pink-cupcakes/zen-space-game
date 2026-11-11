@@ -136,9 +136,11 @@ export async function createDashboard(
   function focusFrame() {
     const nav = currentModule === "navigation",
       [x, y] = cabinGeometry.point(nav ? 963 : 735, nav ? 604 : 605),
+      portraitPhone = innerWidth <= 700 && innerHeight > innerWidth,
       scale = Math.min(
-        innerWidth / (nav ? 248 : 150),
-        (innerHeight - 140) / (nav ? 135 : 101),
+        innerWidth /
+          (nav ? (portraitPhone ? 185 : 248) : portraitPhone ? 120 : 150),
+        (innerHeight - (portraitPhone ? 220 : 140)) / (nav ? 135 : 101),
       );
     return {
       left: x - innerWidth / 2 / scale,
@@ -157,20 +159,24 @@ export async function createDashboard(
     surface.render();
   }
   function openConsole(module, trigger) {
-    if (dialog.open) return;
-    returnFocus = trigger;
+    const switching = dialog.open;
+    if (switching && currentModule === module) return;
+    if (!switching) returnFocus = trigger;
+    const from = switching ? getComputedStyle(world).transform : cabinCamera();
+    animation?.cancel();
     currentModule = module;
     onChange({ module });
     dialog.dataset.module = currentModule;
     switches.inert = currentModule !== "navigation";
-    const from = cabinCamera(),
-      to = focusCamera();
+    const to = focusCamera();
     surface.resolution(true);
     surface.render();
-    dialog.prepend(world);
-    world.inert = false;
+    if (!switching) {
+      dialog.prepend(world);
+      world.inert = false;
+    }
     world.style.transform = to;
-    dialog.showModal();
+    if (!switching) dialog.showModal();
     animation = world.animate([{ transform: from }, { transform: to }], {
       duration: reducedMotion.matches ? 0 : 850,
       easing: "cubic-bezier(.22,.68,.2,1)",
@@ -182,7 +188,7 @@ export async function createDashboard(
       },
       () => {},
     );
-    q(".console-close").focus({ preventScroll: true });
+    if (!switching) q(".console-close").focus({ preventScroll: true });
   }
   async function closeConsole() {
     if (closing) return;
