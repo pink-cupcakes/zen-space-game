@@ -1,0 +1,4 @@
+/* Retain faint ambient detail while removing unearned yellow light from the plant. */
+.desk-plant-shade{position:absolute;left:0;top:0;width:1672px;height:941px;transform-origin:0 0;pointer-events:none;background:#030b12;opacity:.62;mask:url('assets/desk-plant-shade-mask.svg') 0 0 / 100% 100% no-repeat;-webkit-mask:url('assets/desk-plant-shade-mask.svg') 0 0 / 100% 100% no-repeat;transition:opacity .65s ease}
+.desk-plant-shade.is-illuminated{opacity:0}
+@media(prefers-reduced-motion:reduce){.desk-plant-shade{transition:none}}
