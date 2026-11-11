@@ -1,5 +1,6 @@
 (async () => {
   await import('./instrument-screens.js');
+  await import('./cabin-surface.js');
   const cabin=document.querySelector('.scene'),art=cabin.querySelector('.art');
   const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
   const destinations=[
@@ -11,7 +12,13 @@
   const startTime=performance.now();let lastTick=startTime,lastLog=startTime,lastPaint=0,returnFocus,currentModule='navigation',closing=false,animation;
   const screens=window.createDriftScreens();
   const world=document.createElement('div');world.className='console-world';
-  for(const canvas of Object.values(screens.canvases))world.append(canvas);
+  const surface=await window.createCabinSurface(screens.canvases,{
+    navigation:[[879,571],[1013,575],[987,630],[845,623]],
+    engineering:[[694,588],[781,591],[766,620],[675,616]],
+    activity:[[1047,588],[1094,591],[1081,628],[1035,624]]
+  });
+  world.append(surface.canvas);
+  art.classList.add('surface-ready');
   const switches=document.createElement('div');switches.className='course-switches';switches.setAttribute('aria-label','Destination switches');
   switches.innerHTML=destinations.map((d,i)=>`<button type="button" data-destination="${d.id}" aria-pressed="${i===0}" aria-label="Set course for ${d.name}" title="${d.code} · ${d.name}"></button>`).join('');world.append(switches);
   const hotspots=document.createElement('div');hotspots.className='instrument-hotspots';
@@ -29,15 +36,12 @@
     const a=p1[0]-p0[0]+g*p1[0],b=p3[0]-p0[0]+hp*p3[0],d=p1[1]-p0[1]+g*p1[1],e=p3[1]-p0[1]+hp*p3[1];
     Object.assign(el.style,{width:w+'px',height:h+'px',transform:`matrix3d(${a/w},${d/w},0,${g/w},${b/h},${e/h},0,${hp/h},0,0,1,0,${p0[0]},${p0[1]},0,1)`});
   }
-  // Only phosphor pixels are drawn. The glass, reflections and bezels belong to the artwork.
-  project(screens.canvases.navigation,384,176,[[879,571],[1013,575],[987,630],[845,623]]);
-  project(screens.canvases.engineering,320,144,[[694,588],[781,591],[766,620],[675,616]]);
-  project(screens.canvases.activity,144,176,[[1047,588],[1094,591],[1081,628],[1035,624]]);
+  // Transparent hit targets follow physical buttons; all visible instruments live in the cabin material.
   project(switches,300,60,[[832,638],[898,643],[892,654],[826,649]]);
   function geometry(){const w=art.clientWidth,h=art.clientHeight;return {w,h,scale:w/window.DriftCabin.width,left:0,top:0};}
   function overviewCamera(){const g=geometry();world.style.transform=`scale(${g.scale})`;}
   function placeHotspots(){const g=geometry();for(const [selector,x,y,w,h] of [['.nav-hotspot',930,598,185,86],['.engine-hotspot',725,603,130,65]]){const [px,py]=window.DriftCabin.point(x,y);Object.assign(hotspots.querySelector(selector).style,{left:`${px*g.scale}px`,top:`${py*g.scale}px`,width:`${w*.75*g.scale}px`,height:`${h*.75*g.scale}px`});}}
-  function returnWorld(){world.inert=true;world.style.backgroundImage='none';art.prepend(world);overviewCamera();}
+  function returnWorld(){world.inert=true;art.prepend(world);surface.resolution(false);surface.render();overviewCamera();}
   function cabinCamera(){
     const g=geometry(),r=art.getBoundingClientRect();
     return `translate(${r.left}px,${r.top}px) scale(${g.scale})`;
@@ -48,7 +52,7 @@
     dialog.dataset.module=currentModule;switches.inert=currentModule!=='navigation';
     q('#view-title').textContent=currentModule==='navigation'?'Navigation':'Ship systems';
     q('#console-instruction').textContent=currentModule==='navigation'?'Use the amber buttons, or press 1, 2, or 3':'Engine · energy · hull / all systems calm';
-    const from=cabinCamera(),to=focusCamera();world.style.backgroundImage=getComputedStyle(art).backgroundImage;
+    const from=cabinCamera(),to=focusCamera();surface.resolution(true);surface.render();
     dialog.prepend(world);world.inert=false;world.style.transform=to;dialog.showModal();
     animation=world.animate([{transform:from},{transform:to}],{duration:reducedMotion.matches?0:850,easing:'cubic-bezier(.22,.68,.2,1)'});
     q('.console-close').focus({preventScroll:true});
@@ -74,10 +78,10 @@
     const t=now/1000;state.paceName=speeds[speedIndex][0];
     state.engine={load:((pace===0?12:pace===.8?48:32)+Math.sin(t*.23)*1.5).toFixed(1),temp:(64+Math.sin(t*.11)*.7).toFixed(1),energy:(87.6+Math.sin(t*.04)*.2).toFixed(1),draw:(1.4+pace*2.8+Math.sin(t*.3)*.1).toFixed(1),rpm:Math.round(700+pace*1540+Math.sin(t*.4)*12).toLocaleString()};
     if(now-lastLog>=22000){lastLog=now;const updates=[['NAV FIX','Position confirmed'],['CORE CHECK','Temperature steady'],['HULL SURVEY','Seals sound'],['POWER BUS','Reserves healthy']],entry=updates[Math.floor((now-startTime)/22000)%4];addLog(...entry);}
-    screens.render(state,reducedMotion.matches?0:now);
+    screens.render(state,reducedMotion.matches?0:now);surface.render();
     q('#instrument-summary').textContent=`Hearth system. Position ${(p.x/100).toFixed(2)}, ${(p.y/100).toFixed(2)}. Course: ${d.name}, ${(r/100).toFixed(2)} AU remaining. ${state.paceName}. Engine ${state.engine.load} percent. Energy ${state.engine.energy} percent. Hull corrosion 1.8 percent.`;
   }
-  screens.render(state,startTime);requestAnimationFrame(frame);
+  screens.render(state,startTime);surface.render();requestAnimationFrame(frame);
   // Consumers may read the same textures; lamp controls have no instrument-power API.
   window.DriftInstruments={canvases:screens.canvases,getSnapshot:()=>JSON.parse(JSON.stringify(state))};
 })();

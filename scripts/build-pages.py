@@ -13,7 +13,8 @@ for name in filter(None, tracked):
     path = Path(name)
     runtime = len(path.parts) == 1 and (name == 'index.html' or path.suffix in {'.js', '.css'})
     asset = path.parts[0] == 'assets' and (path.suffix in asset_types or path.name in {'Tiny5-OFL.txt', 'CC0-1.0.txt'})
-    if runtime or asset:
+    vendor = path.parts[:2] == ('assets', 'vendor') and (path.suffix == '.js' or path.name == 'LICENSE')
+    if runtime or asset or vendor:
         if (ROOT / path).is_symlink():
             raise SystemExit(f'Refusing symlink in site bundle: {path}')
         files.append(path)

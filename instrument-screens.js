@@ -6,9 +6,9 @@ window.createDriftScreens = function () {
     canvas.className='instrument-bitmap';canvas.setAttribute('aria-label',`${name} display`);canvas.setAttribute('role','img');return [name,canvas];
   }));
   const green='#8fcb98',dim='#416a51',bright='#c2dfad';
-  function begin(canvas){const c=canvas.getContext('2d');c.clearRect(0,0,canvas.width,canvas.height);c.save();c.beginPath();c.roundRect(0,0,canvas.width,canvas.height,8);c.clip();c.fillStyle='rgba(2,17,11,.72)';c.fillRect(0,0,canvas.width,canvas.height);c.lineWidth=1;c.font='10px monospace';c.textBaseline='top';return c;}
+  function begin(canvas){const c=canvas.getContext('2d');c.clearRect(0,0,canvas.width,canvas.height);c.save();c.lineWidth=1;c.font='10px monospace';c.textBaseline='top';return c;}
   function text(c,value,x,y,color=green,font='10px monospace'){c.fillStyle=color;c.font=font;c.fillText(value,x,y);}
-  function finish(c,w,h){c.fillStyle='rgba(1,10,4,.15)';for(let y=1;y<h;y+=3)c.fillRect(0,y,w,1);c.restore();}
+  function finish(c,w,h){c.globalCompositeOperation='destination-out';c.fillStyle='rgba(0,0,0,.15)';for(let y=1;y<h;y+=3)c.fillRect(0,y,w,1);c.restore();}
   function render(state,time){
     const {position,destination,paceName,engine,log}=state;
     let c=begin(canvases.navigation);
