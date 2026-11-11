@@ -24,7 +24,7 @@
   document.body.append(dialog);
   const q=s=>dialog.querySelector(s);
   function project(el,w,h,points){
-    const [p0,p1,p2,p3]=points,dx1=p1[0]-p2[0],dx2=p3[0]-p2[0],dx3=p0[0]-p1[0]+p2[0]-p3[0],dy1=p1[1]-p2[1],dy2=p3[1]-p2[1],dy3=p0[1]-p1[1]+p2[1]-p3[1];
+    const [p0,p1,p2,p3]=points.map(([x,y])=>window.DriftCabin.point(x,y)),dx1=p1[0]-p2[0],dx2=p3[0]-p2[0],dx3=p0[0]-p1[0]+p2[0]-p3[0],dy1=p1[1]-p2[1],dy2=p3[1]-p2[1],dy3=p0[1]-p1[1]+p2[1]-p3[1];
     const det=dx1*dy2-dx2*dy1,g=(dx3*dy2-dx2*dy3)/det,hp=(dx1*dy3-dx3*dy1)/det;
     const a=p1[0]-p0[0]+g*p1[0],b=p3[0]-p0[0]+hp*p3[0],d=p1[1]-p0[1]+g*p1[1],e=p3[1]-p0[1]+hp*p3[1];
     Object.assign(el.style,{width:w+'px',height:h+'px',transform:`matrix3d(${a/w},${d/w},0,${g/w},${b/h},${e/h},0,${hp/h},0,0,1,0,${p0[0]},${p0[1]},0,1)`});
@@ -34,15 +34,15 @@
   project(screens.canvases.engineering,320,144,[[694,588],[781,591],[766,620],[675,616]]);
   project(screens.canvases.activity,144,176,[[1047,588],[1094,591],[1081,628],[1035,624]]);
   project(switches,300,60,[[832,638],[898,643],[892,654],[826,649]]);
-  function geometry(){const w=art.clientWidth,h=art.clientHeight,scale=Math.max(w/1672,h/941);return {w,h,scale,left:(w-1672*scale)*(innerWidth<=700?.58:.5),top:(h-941*scale)/2};}
-  function overviewCamera(){const g=geometry();world.style.transform=`translate(${g.left}px,${g.top}px) scale(${g.scale})`;}
-  function placeHotspots(){const g=geometry();for(const [selector,x,y,w,h] of [['.nav-hotspot',930,598,185,86],['.engine-hotspot',725,603,130,65]])Object.assign(hotspots.querySelector(selector).style,{left:`${g.left+x*g.scale}px`,top:`${g.top+y*g.scale}px`,width:`${w*g.scale}px`,height:`${h*g.scale}px`});}
+  function geometry(){const w=art.clientWidth,h=art.clientHeight;return {w,h,scale:w/window.DriftCabin.width,left:0,top:0};}
+  function overviewCamera(){const g=geometry();world.style.transform=`scale(${g.scale})`;}
+  function placeHotspots(){const g=geometry();for(const [selector,x,y,w,h] of [['.nav-hotspot',930,598,185,86],['.engine-hotspot',725,603,130,65]]){const [px,py]=window.DriftCabin.point(x,y);Object.assign(hotspots.querySelector(selector).style,{left:`${px*g.scale}px`,top:`${py*g.scale}px`,width:`${w*.75*g.scale}px`,height:`${h*.75*g.scale}px`});}}
   function returnWorld(){world.inert=true;world.style.backgroundImage='none';art.prepend(world);overviewCamera();}
   function cabinCamera(){
-    const g=geometry(),r=cabin.getBoundingClientRect(),transform=getComputedStyle(art).transform;
-    return new DOMMatrix().translate(r.left+g.w/2,r.top+g.h/2).multiply(new DOMMatrix(transform==='none'?undefined:transform)).translate(-g.w/2,-g.h/2).translate(g.left,g.top).scale(g.scale).toString();
+    const g=geometry(),r=art.getBoundingClientRect();
+    return `translate(${r.left}px,${r.top}px) scale(${g.scale})`;
   }
-  function focusCamera(){const nav=currentModule==='navigation',scale=Math.min(innerWidth/(nav?330:200),(innerHeight-140)/(nav?180:135));return `translate(${innerWidth/2-(nav?963:735)*scale}px,${innerHeight*.52-(nav?604:605)*scale}px) scale(${scale})`;}
+  function focusCamera(){const nav=currentModule==='navigation',[x,y]=window.DriftCabin.point(nav?963:735,nav?604:605),scale=Math.min(innerWidth/(nav?248:150),(innerHeight-140)/(nav?135:101));return `translate(${innerWidth/2-x*scale}px,${innerHeight*.52-y*scale}px) scale(${scale})`;}
   function openConsole(trigger){
     if(dialog.open)return;returnFocus=trigger;currentModule=trigger.dataset.console;
     dialog.dataset.module=currentModule;switches.inert=currentModule!=='navigation';

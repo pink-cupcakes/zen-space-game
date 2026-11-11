@@ -29,13 +29,12 @@
     button.addEventListener('click',()=>{button.setAttribute('aria-pressed',String(button.getAttribute('aria-pressed')!=='true'));sync()});sync();
   }
   function position(){
-    const w=scene.clientWidth,h=scene.clientHeight,scale=Math.max(w/1672,h/941);
-    const iw=1672*scale,ih=941*scale,left=(w-iw)*(innerWidth<=700?.58:.5),top=(h-ih)/2;
+    const g=window.DriftCabin,scale=layer.clientWidth/g.width;
     for(const fixture of fixtures){
-      const [x,y,bw,bh]=fixture.box;
-      Object.assign(fixture.button.style,{left:`${left+x*scale}px`,top:`${top+y*scale}px`,width:`${bw*scale}px`,height:`${bh*scale}px`});
-      if(fixture.spill)Object.assign(fixture.spill.style,{left:`${left}px`,top:`${top}px`,width:`${iw}px`,height:`${ih}px`});
+      const [x,y,bw,bh]=fixture.box,[px,py]=g.point(x,y);
+      Object.assign(fixture.button.style,{left:`${px*scale}px`,top:`${py*scale}px`,width:`${bw*.75*scale}px`,height:`${bh*.75*scale}px`});
+      if(fixture.spill)Object.assign(fixture.spill.style,{left:'0px',top:'0px',width:'1672px',height:'941px',transform:g.overlayTransform(scale)});
     }
   }
-  new ResizeObserver(position).observe(scene);position();
+  new ResizeObserver(position).observe(layer);position();
 })();

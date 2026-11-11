@@ -5,19 +5,21 @@ const scene=document.querySelector('.scene');document.querySelector('#begin').on
 const speeds=[['Slow drift',.35],['Gentle cruise',.8],['Stillness',0]];let speedIndex=0;document.querySelector('#speed').onclick=e=>{speedIndex=(speedIndex+1)%speeds.length;pace=speeds[speedIndex][1];e.currentTarget.querySelector('b').textContent=speeds[speedIndex][0]};
 let audio,osc,gain,playing=false;document.querySelector('#sound').onclick=async e=>{if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();osc=audio.createOscillator();gain=audio.createGain();osc.type='sine';osc.frequency.value=55;gain.gain.value=0;osc.connect(gain).connect(audio.destination);osc.start()}await audio.resume();playing=!playing;gain.gain.setTargetAtTime(playing?.035:0,audio.currentTime,.5);e.currentTarget.querySelector('b').textContent=playing?'On':'Off'};
 
-// Rotate the viewpoint over the cabin illustration without moving the viewer.
+// Pan over the extended illustration; the image bounds define the available travel.
 const look = { x: 0, y: 0, pointer: null };
 function updateLook() {
-  const maxX = scene.clientWidth * .07, maxY = scene.clientHeight * .07;
-  look.x = Math.max(-maxX, Math.min(maxX, look.x));
-  look.y = Math.max(-maxY, Math.min(maxY, look.y));
-  scene.style.setProperty('--look-x', `${look.x}px`);
-  scene.style.setProperty('--look-y', `${look.y}px`);
-  scene.style.setProperty('--look-yaw', `${look.x / maxX * 5}deg`);
-  scene.style.setProperty('--look-pitch', `${-look.y / maxY * 4}deg`);
+  const g=window.DriftCabin, width=scene.clientWidth, height=scene.clientHeight;
+  const scale=g.scale(width,height), imageWidth=g.width*scale, imageHeight=g.height*scale;
+  const maxX=Math.max(0,(imageWidth-width)/2), maxY=Math.max(0,(imageHeight-height)/2);
+  look.x=Math.max(-maxX,Math.min(maxX,look.x));
+  look.y=Math.max(-maxY,Math.min(maxY,look.y));
+  for(const layer of scene.querySelectorAll('.art,.light-layer')) Object.assign(layer.style,{width:`${imageWidth}px`,height:`${imageHeight}px`,left:`${-maxX}px`,top:`${-maxY}px`});
+  scene.style.setProperty('--look-x',`${look.x}px`);
+  scene.style.setProperty('--look-y',`${look.y}px`);
 }
+updateLook();
 scene.addEventListener('pointerdown', event => {
-  if (event.button !== 0 || event.target.closest('button, select, label, a, audio, .music-player')) return;
+  if (event.button !== 0 || event.target.closest('button, select, input, label, a, audio, .music-player')) return;
   look.pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
   scene.setPointerCapture(event.pointerId); scene.classList.add('looking');
 });
