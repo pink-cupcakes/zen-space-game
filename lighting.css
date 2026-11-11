@@ -1,0 +1,8 @@
+/* Both lamps are unlit in the base texture. Only their separate light layers switch. */
+.scene .art{background-image:url('assets/cockpit-lamps-off.png')}
+.lamp-spill{position:absolute;pointer-events:none;background:url('assets/cockpit-instruments-v2.png') center / 100% 100% no-repeat;opacity:0;transition:opacity .65s ease;filter:brightness(.72);mask-repeat:no-repeat;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;-webkit-mask-size:100% 100%}
+.left-lamp-spill{mask-image:url('assets/lamp-left-mask.svg');-webkit-mask-image:url('assets/lamp-left-mask.svg')}
+.right-lamp-spill{mask-image:url('assets/lamp-right-mask.svg');-webkit-mask-image:url('assets/lamp-right-mask.svg')}
+.lamp-spill.is-on{opacity:.85}
+.cabin-light.painted-lamp,.cabin-light.painted-lamp[aria-pressed="true"]{background:transparent;filter:none}
+@media(prefers-reduced-motion:reduce){.lamp-spill{transition:none}}

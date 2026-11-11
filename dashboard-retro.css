@@ -1,0 +1,39 @@
+/* Pixel lettering only. Screen rendering, geometry, and interactions live elsewhere. */
+@font-face{
+  font-family:'Drift Pixel';
+  src:url('assets/fonts/Tiny5-Regular.ttf') format('truetype');
+  font-style:normal;
+  font-weight:400;
+  font-display:swap;
+}
+.console-view-controls h1{
+  font-family:'Drift Pixel',monospace;
+  font-size:35px;
+  font-weight:400;
+  line-height:1.1;
+  letter-spacing:0;
+  text-transform:uppercase;
+  text-shadow:none;
+}
+.console-view-controls>div>span,
+.console-close,
+.console-close kbd,
+.console-guide,
+.console-guide small,
+.instrument-hotspot span{
+  font-family:'Drift Pixel',monospace;
+  font-weight:400;
+  font-synthesis:none;
+}
+.console-view-controls>div>span{font-size:15px;letter-spacing:.08em}
+.console-close{font-size:15px;letter-spacing:.02em}
+.console-close kbd{font-size:10px}
+.console-guide{font-size:15px}
+.console-guide small{font-size:15px}
+.instrument-hotspot span{font-size:15px}
+@media(max-width:700px){
+  .console-view-controls h1{font-size:25px}
+  .console-view-controls>div>span{font-size:10px}
+  .console-close{font-size:10px}
+  .console-guide,.console-guide small{font-size:15px}
+}
