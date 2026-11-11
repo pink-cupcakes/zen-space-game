@@ -1,37 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080f17">
-<title>Drift — a quiet journey</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="dashboard.css"><link rel="stylesheet" href="dashboard-retro.css"><link rel="stylesheet" href="lighting.css"><link rel="stylesheet" href="panorama.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080f17" />
+  <title>Drift — a quiet journey</title>
 </head>
 <body>
-<main class="scene" tabindex="0" aria-label="A quiet journey through space. Drag or use arrow keys to look around.">
-  <div class="art"></div><canvas id="stars" aria-hidden="true"></canvas><div class="shade"></div>
-  <div class="light-layer"><button class="cabin-light ceiling-light" type="button" aria-label="Ceiling light" aria-pressed="false" title="Turn on ceiling light"></button><button class="cabin-light desk-light" type="button" aria-label="Desk light" aria-pressed="false" title="Turn on desk light"></button></div>
-  <header class="top"><div class="brand"><span class="mark">✳</span><span>DRIFT <small> / &nbsp; A QUIET JOURNEY</small></span></div><div class="status"><i></i> ALL SYSTEMS CALM</div></header>
-  <section class="intro"><p class="eyebrow">SOMEWHERE BETWEEN HERE AND THERE</p><h1>Take the long way.</h1><p>No destination. No rush. Just you and the quiet<br class="desktop"> hum of a ship moving through the dark.</p><button id="begin" class="begin">SETTLE IN <span>↗</span></button></section>
-  <div class="readout"><span>VESSEL STATUS</span><strong>Coasting</strong><div class="line"></div><span>THE JOURNEY</span><strong id="distance">000.00 <small>LY</small></strong></div>
-  <section class="music-player" aria-label="Lo-fi radio">
-    <div class="radio-heading"><div><span class="radio-kicker">DEEP SPACE RADIO</span><span id="music-status" role="status">Ready when you are</span></div><button id="radio-toggle" class="radio-toggle" type="button" aria-expanded="true" aria-controls="radio-panel" aria-label="Shelve radio" title="Shelve radio">−</button></div>
-    <div id="radio-panel">
-      <label class="track-label" for="music-track">NOW PLAYING <span>MELLOW / 6 TRACKS</span></label>
-      <select id="music-track" aria-label="Music track">
-        <option value="tokyo-sunset">Tokyo Sunset</option>
-        <option value="ease-into-night">Ease into Night</option>
-        <option value="calm-currents">Calm Currents</option>
-        <option value="peaceful-drift">Peaceful Drift</option>
-        <option value="into-the-mist">Into the Mist</option>
-        <option value="reminders">Reminders</option>
-      </select>
-      <audio id="music" preload="metadata"></audio>
-      <div class="seek-row"><span id="elapsed">0:00</span><input id="seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek through track"><span id="duration">0:00</span></div>
-      <div class="transport"><button id="previous-track" aria-label="Previous track" title="Previous track">⏮</button><button id="music-play" class="play-button" aria-label="Play" title="Play">▶</button><button id="next-track" aria-label="Next track" title="Next track">⏭</button></div>
-      <div class="volume-row"><button id="music-mute" aria-label="Mute" title="Mute">♪</button><label for="music-volume">VOLUME</label><input id="music-volume" type="range" min="0" max="100" step="1" aria-label="Volume"><span id="volume-value"></span></div>
-      <a class="music-credit" href="assets/music/credits.html" target="_blank" rel="noopener">HoliznaCC0 · CC0 · Music credits ↗</a>
-    </div>
-  </section>
-  <footer class="controls"><div class="control-label"><span class="dot"></span><div><b>YOUR LITTLE CORNER OF SPACE</b><small>Make yourself comfortable.</small></div></div><div class="actions"><button id="speed" title="Change travel speed"><span>◌</span><div><small>TRAVEL PACE</small><b>Slow drift</b></div></button><button id="sound" title="Toggle ambient ship hum"><span>♫</span><div><small>SHIP HUM</small><b>Off</b></div></button><button id="hide" title="Hide controls"><span>⌁</span><div><small>VIEW</small><b>Clear window</b></div></button></div></footer>
-  <div class="look-hint" aria-hidden="true">DRAG TO LOOK AROUND</div>
-  <button class="restore" id="restore">✳ &nbsp; SHOW CONTROLS</button>
-</main><script src="cabin-geometry.js"></script><script src="app.js"></script><script src="music.js"></script><script src="dashboard.js"></script><script src="lighting.js"></script>
-</body></html>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 A quiet little space-travel game. No objectives, no score, just a cockpit and a slow journey through the stars.
 
-Open `index.html` in a modern browser, or serve this directory with `python3 -m http.server` and visit http://localhost:8000. Use the controls to change pace, turn the ship hum on or off, or clear the view. The journey is intentionally ephemeral.
+Install dependencies with `npm install`, then run `npm run dev` and open the local URL printed by Vite. Run `npm test` for the geometry checks, `npm run build` to build the React app into `_site/`, and `npm run preview` to preview that build. Use the controls to change pace, turn the ship hum on or off, or clear the view. The journey is intentionally ephemeral.
 
 The cockpit art was generated for this project with OpenAI image generation.
 
@@ -19,7 +19,7 @@ Click the illustrated radar or engine screen, or use **Instruments**, to pan and
 
 The navigation screen shows your position in the Hearth system and the route to your destination. The amber button groups select Lantern Station (01), Moss moon (02), and Cinder Belt (03); keyboard shortcuts 1, 2, and 3 also select routes. The adjacent activity display records course changes and quiet system updates. Travel follows the existing pace control and pauses in Stillness. Engine load, temperature, energy, and hull readings are fictional, low-stakes telemetry.
 
-Return with **Back to cabin** or **Escape**; your look-around position is preserved. Reduced motion skips the camera animation. Screen rendering lives in `instrument-screens.js`, interaction and camera behavior in `dashboard.js`, and placement in `dashboard.css`. Lamp behavior is separate in `lighting.js` and `lighting.css`.
+Return with **Back to cabin** or **Escape**; your look-around position is preserved. Reduced motion skips the camera animation. Screen rendering lives in `src/engines/instrument-screens.js`, console camera behavior in `src/engines/dashboard.js`, and placement in `dashboard.css`. Lamp behavior is separate in `src/engines/lighting.js` and `lighting.css`.
 
 `copy-bank.json` reserves “A little closer to somewhere.” for a future journey moment. The built-in image-generation edit and its exact prompt are saved in `assets/cockpit-instruments-v2.png` and `assets/cockpit-instruments-v2.prompt.txt`; it preserves the cabin and provides recessed glass for the live displays.
 
@@ -27,4 +27,8 @@ Return with **Back to cabin** or **Escape**; your look-around position is preser
 
 The static game can be published with `.github/workflows/pages.yml`. Enable **Settings → Pages → Source → GitHub Actions**, then push to `main` or manually run **Publish Drift to GitHub Pages**. GitHub Free requires a public repository; keeping the source repository private requires an eligible paid plan. The published game itself is public.
 
-Run `python3 scripts/build-pages.py` to inspect the deployment bundle in `_site/`. It includes tracked runtime files, images, fonts, music and licenses; it excludes Git metadata, generation prompts and project notes. Commit new runtime assets before publishing. The expected project URL is `https://pink-cupcakes.github.io/zen-space-game/`.
+Run `npm run build` to create the deployment bundle in `_site/`. The bundle includes images, fonts, music and licenses and excludes generation prompts. Commit new runtime assets before publishing. The expected project URL is `https://pink-cupcakes.github.io/zen-space-game/`.
+
+## Code structure
+
+React components in `src/components/` own the controls and their state. `src/experience.js` creates and disposes the camera, star field, lighting, ship hum, and instrument controllers in `src/engines/`. The radio uses a separate audio controller; canvas and Web Audio rendering remain in their respective engines.
