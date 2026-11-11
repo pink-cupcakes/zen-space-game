@@ -9,18 +9,31 @@ humButton.setAttribute('aria-pressed','false');
 function createShipHum(){
   humAudio=new (window.AudioContext||window.webkitAudioContext)();
   humGain=humAudio.createGain();humGain.gain.value=0;humGain.connect(humAudio.destination);
-  // Audible harmonics carry the engine sound on laptop speakers; the sub stays gentle.
-  for(const [frequency,level] of [[65,.25],[130,.45],[195,.13],[260,.10]]){
-    const tone=humAudio.createOscillator(),levelNode=humAudio.createGain();
-    tone.type='sine';tone.frequency.value=frequency;levelNode.gain.value=level;
-    tone.connect(levelNode).connect(humGain);tone.start();
+  // Broad, unpitched air movement rather than oscillators or musical notes.
+  const rate=humAudio.sampleRate,duration=12,overlap=Math.floor(rate*.5);
+  const buffer=humAudio.createBuffer(2,rate*duration,rate);
+  for(let channel=0;channel<2;channel++){
+    const samples=buffer.getChannelData(channel);let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0,brown=0;
+    for(let i=0;i<samples.length;i++){
+      const white=Math.random()*2-1;
+      b0=.99886*b0+white*.0555179;b1=.99332*b1+white*.0750759;
+      b2=.969*b2+white*.153852;b3=.8665*b3+white*.3104856;
+      b4=.55*b4+white*.5329522;b5=-.7616*b5-white*.016898;
+      const pink=(b0+b1+b2+b3+b4+b5+b6+white*.5362)*.11;b6=white*.115926;
+      brown=.995*brown+white*.02;
+      samples[i]=pink*.8+brown*.6;
+    }
+    // Crossfade the loop boundary so ventilation has no recurring click.
+    for(let i=0;i<overlap;i++){
+      const t=i/(overlap-1),j=samples.length-overlap+i;
+      samples[j]=samples[j]*Math.cos(t*Math.PI/2)+samples[i]*Math.sin(t*Math.PI/2);
+    }
   }
-  // Quiet, filtered ventilation adds texture without a sharp hiss.
-  const buffer=humAudio.createBuffer(1,humAudio.sampleRate*4,humAudio.sampleRate),samples=buffer.getChannelData(0);
-  for(let i=0;i<samples.length;i++)samples[i]=Math.random()*2-1;
-  const air=humAudio.createBufferSource(),filter=humAudio.createBiquadFilter(),airLevel=humAudio.createGain();
-  air.buffer=buffer;air.loop=true;filter.type='lowpass';filter.frequency.value=480;filter.Q.value=.5;airLevel.gain.value=.18;
-  air.connect(filter).connect(airLevel).connect(humGain);air.start();
+  const air=humAudio.createBufferSource(),low=humAudio.createBiquadFilter(),high=humAudio.createBiquadFilter();
+  air.buffer=buffer;air.loop=true;air.loopStart=.5;air.loopEnd=duration;
+  high.type='highpass';high.frequency.value=40;high.Q.value=.5;
+  low.type='lowpass';low.frequency.value=650;low.Q.value=.5;
+  air.connect(high).connect(low).connect(humGain);air.start(0,.5);
 }
 humButton.onclick=async()=>{
   if(humBusy)return;humBusy=true;
@@ -32,7 +45,7 @@ humButton.onclick=async()=>{
     const now=humAudio.currentTime;
     humGain.gain.cancelScheduledValues(now);
     humGain.gain.setValueAtTime(humGain.gain.value,now);
-    humGain.gain.linearRampToValueAtTime(humPlaying?.12:0,now+.7);
+    humGain.gain.linearRampToValueAtTime(humPlaying?.24:0,now+.7);
     humButton.setAttribute('aria-pressed',String(humPlaying));
     humButton.querySelector('b').textContent=humPlaying?'On':'Off';
     humButton.title='Toggle ambient ship hum';
