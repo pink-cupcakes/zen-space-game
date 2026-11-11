@@ -5,13 +5,12 @@
   const play = $('music-play'), seek = $('seek'), volume = $('music-volume'), mute = $('music-mute');
   const tracks = [...selector.options].map(option => option.value);
   const MIX = 'mellow-v1', FADE = 8, RATE = 0.9;
-  let index = 0, level = 0.18, muted = false, wanted = false;
+  let index = Math.max(0, tracks.indexOf('tokyo-sunset')), level = 0.18, muted = false, wanted = false;
   let context, master, current, outgoing, transitionEnd = 0, operation = 0, switching = false;
   const cache = new Map();
   const failed = new Set();
   try {
     const saved = JSON.parse(localStorage.getItem('drift-radio'));
-    if (saved && tracks.includes(saved.track)) index = tracks.indexOf(saved.track);
     if (saved && Number.isFinite(saved.volume) && saved.volume >= 0 && saved.volume <= 1)
       level = saved.mix === MIX ? saved.volume : Math.min(saved.volume, 0.18);
   } catch {}
@@ -31,9 +30,8 @@
     }
     return round;
   }
-  // Start a fresh shuffle each visit, avoiding the last saved track at the start.
-  let queue = newRound(index);
-  index = queue.shift();
+  // Open with Tokyo Sunset, then shuffle the remaining tracks without repeating it.
+  let queue = newRound(index).filter(i => i !== index);
   let history = [], historyPosition = -1;
   function nextTrack() {
     if (historyPosition + 1 < history.length) return history[historyPosition + 1];

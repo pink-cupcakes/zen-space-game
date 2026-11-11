@@ -3,7 +3,42 @@ function resize(){w=canvas.width=innerWidth*devicePixelRatio;h=canvas.height=inn
 function animate(t){let dt=Math.min((t-last)/1000||0,.05);last=t;ctx.clearRect(0,0,w,h);for(const s of stars){s.x-=pace*dt*devicePixelRatio*5;if(s.x<0)s.x=w;ctx.beginPath();ctx.fillStyle=`rgba(209,230,232,${s.a})`;ctx.arc((s.x+look.x*.08*devicePixelRatio+w)%w,s.y+look.y*.04*devicePixelRatio,s.r,0,Math.PI*2);ctx.fill()}distance+=dt*pace*.003;document.querySelector('#distance').innerHTML=distance.toFixed(2).padStart(6,'0')+' <small>LY</small>';requestAnimationFrame(animate)}requestAnimationFrame(animate);
 const scene=document.querySelector('.scene');document.querySelector('#begin').onclick=()=>scene.classList.add('settled');document.querySelector('#hide').onclick=()=>scene.classList.add('minimal');document.querySelector('#restore').onclick=()=>scene.classList.remove('minimal');
 const speeds=[['Slow drift',.35],['Gentle cruise',.8],['Stillness',0]];let speedIndex=0;document.querySelector('#speed').onclick=e=>{speedIndex=(speedIndex+1)%speeds.length;pace=speeds[speedIndex][1];e.currentTarget.querySelector('b').textContent=speeds[speedIndex][0]};
-let audio,osc,gain,playing=false;document.querySelector('#sound').onclick=async e=>{if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();osc=audio.createOscillator();gain=audio.createGain();osc.type='sine';osc.frequency.value=55;gain.gain.value=0;osc.connect(gain).connect(audio.destination);osc.start()}await audio.resume();playing=!playing;gain.gain.setTargetAtTime(playing?.035:0,audio.currentTime,.5);e.currentTarget.querySelector('b').textContent=playing?'On':'Off'};
+let humAudio,humGain,humPlaying=false,humBusy=false;
+const humButton=document.querySelector('#sound');
+humButton.setAttribute('aria-pressed','false');
+function createShipHum(){
+  humAudio=new (window.AudioContext||window.webkitAudioContext)();
+  humGain=humAudio.createGain();humGain.gain.value=0;humGain.connect(humAudio.destination);
+  // Audible harmonics carry the engine sound on laptop speakers; the sub stays gentle.
+  for(const [frequency,level] of [[65,.25],[130,.45],[195,.13],[260,.10]]){
+    const tone=humAudio.createOscillator(),levelNode=humAudio.createGain();
+    tone.type='sine';tone.frequency.value=frequency;levelNode.gain.value=level;
+    tone.connect(levelNode).connect(humGain);tone.start();
+  }
+  // Quiet, filtered ventilation adds texture without a sharp hiss.
+  const buffer=humAudio.createBuffer(1,humAudio.sampleRate*4,humAudio.sampleRate),samples=buffer.getChannelData(0);
+  for(let i=0;i<samples.length;i++)samples[i]=Math.random()*2-1;
+  const air=humAudio.createBufferSource(),filter=humAudio.createBiquadFilter(),airLevel=humAudio.createGain();
+  air.buffer=buffer;air.loop=true;filter.type='lowpass';filter.frequency.value=480;filter.Q.value=.5;airLevel.gain.value=.18;
+  air.connect(filter).connect(airLevel).connect(humGain);air.start();
+}
+humButton.onclick=async()=>{
+  if(humBusy)return;humBusy=true;
+  try{
+    if(!humAudio)createShipHum();
+    await humAudio.resume();
+    if(humAudio.state!=='running')throw new Error('Audio did not start');
+    humPlaying=!humPlaying;
+    const now=humAudio.currentTime;
+    humGain.gain.cancelScheduledValues(now);
+    humGain.gain.setValueAtTime(humGain.gain.value,now);
+    humGain.gain.linearRampToValueAtTime(humPlaying?.12:0,now+.7);
+    humButton.setAttribute('aria-pressed',String(humPlaying));
+    humButton.querySelector('b').textContent=humPlaying?'On':'Off';
+    humButton.title='Toggle ambient ship hum';
+  }catch(error){humButton.querySelector('b').textContent='Try again';humButton.title='Click to retry audio';console.error('Ship hum:',error);}
+  finally{humBusy=false;}
+};
 
 // Move the camera crop across the approved illustration; never expose empty edges.
 const look = { x: 0, y: 0, pointer: null };
