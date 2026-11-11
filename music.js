@@ -6,14 +6,19 @@
   const tracks = [...selector.options].map(option => option.value);
   let index = 0;
   let selection = 0;
-  player.volume = 0.35;
+  const mixVersion = 'mellow-v1';
+  player.volume = 0.18;
+  // A gentle tempo reduction retains pitch and softens the pace of the station.
+  player.defaultPlaybackRate = 0.9;
+  player.playbackRate = 0.9;
+  player.preservesPitch = true;
   try {
     const saved = JSON.parse(localStorage.getItem('drift-radio'));
     if (saved && tracks.includes(saved.track)) index = tracks.indexOf(saved.track);
-    if (saved && typeof saved.volume === 'number' && saved.volume >= 0 && saved.volume <= 1) player.volume = saved.volume;
+    if (saved && typeof saved.volume === 'number' && saved.volume >= 0 && saved.volume <= 1) player.volume = saved.mix === mixVersion ? saved.volume : Math.min(saved.volume, 0.18);
   } catch {}
   function save() {
-    try { localStorage.setItem('drift-radio', JSON.stringify({track: tracks[index], volume: player.volume})); } catch {}
+    try { localStorage.setItem('drift-radio', JSON.stringify({track: tracks[index], volume: player.volume, mix: mixVersion})); } catch {}
   }
   async function loadTrack(nextIndex, resume = false) {
     const version = ++selection;
