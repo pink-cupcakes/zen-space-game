@@ -21,7 +21,7 @@ function createShipHum(){
       b4=.55*b4+white*.5329522;b5=-.7616*b5-white*.016898;
       const pink=(b0+b1+b2+b3+b4+b5+b6+white*.5362)*.11;b6=white*.115926;
       brown=.995*brown+white*.02;
-      samples[i]=pink*.8+brown*.6;
+      samples[i]=pink*.65+brown*.75;
     }
     // Crossfade the loop boundary so ventilation has no recurring click.
     for(let i=0;i<overlap;i++){
@@ -32,8 +32,15 @@ function createShipHum(){
   const air=humAudio.createBufferSource(),low=humAudio.createBiquadFilter(),high=humAudio.createBiquadFilter();
   air.buffer=buffer;air.loop=true;air.loopStart=.5;air.loopEnd=duration;
   high.type='highpass';high.frequency.value=40;high.Q.value=.5;
-  low.type='lowpass';low.frequency.value=650;low.Q.value=.5;
-  air.connect(high).connect(low).connect(humGain);air.start(0,.5);
+  low.type='lowpass';low.frequency.value=420;low.Q.value=.5;
+  // Very slow, inaudible modulation gives the noise a distant, drifting quality.
+  const drift=humAudio.createOscillator(),driftDepth=humAudio.createGain();
+  drift.frequency.value=.025;driftDepth.gain.value=65;
+  drift.connect(driftDepth).connect(low.frequency);drift.start();
+  const swell=humAudio.createGain(),swellMotion=humAudio.createOscillator(),swellDepth=humAudio.createGain();
+  swell.gain.value=.95;swellMotion.frequency.value=.018;swellDepth.gain.value=.04;
+  swellMotion.connect(swellDepth).connect(swell.gain);swellMotion.start();
+  air.connect(high).connect(low).connect(swell).connect(humGain);air.start(0,.5);
 }
 humButton.onclick=async()=>{
   if(humBusy)return;humBusy=true;
@@ -45,7 +52,7 @@ humButton.onclick=async()=>{
     const now=humAudio.currentTime;
     humGain.gain.cancelScheduledValues(now);
     humGain.gain.setValueAtTime(humGain.gain.value,now);
-    humGain.gain.linearRampToValueAtTime(humPlaying?.24:0,now+.7);
+    humGain.gain.linearRampToValueAtTime(humPlaying?.10:0,now+.7);
     humButton.setAttribute('aria-pressed',String(humPlaying));
     humButton.querySelector('b').textContent=humPlaying?'On':'Off';
     humButton.title='Toggle ambient ship hum';
